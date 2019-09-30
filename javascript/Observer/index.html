@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="msg_num">0</div>
+    <ul id="msg">
+
+    </ul>
+    <input type="text" id="user_input">
+    <button id="user_submit">提交</button>
+    <script>
+        var Observer = (function () {
+            // 防止消息队列暴露
+            var _message = {}
+            return {
+                // 注册消息  接收两个参数 消息类型和相应的处理动作
+                regist: function (type, fn) {
+                    // 消息类型不存在就创建一个消息类型
+                    if (typeof _message[type] === "undefined") {
+                        _message[type] = [fn]
+                    } else {
+                        // 将方法动作推入该消息对应的动作序列中
+                        _message[type].push(fn)
+                    }
+                },
+                // 观察者发布一个消息时将所有订阅者的消息一次执行完
+                // 发布消息  接收两个参数 消息类型和执行需要传递的参数
+                fire: function (type, args) {
+                    // 如果没被注册
+                    if (!_message[type]) {
+                        return
+                    }
+                    var events = {
+                            type: type,
+                            args: args || {}
+                        },
+                        i = 0,
+                        len = _message[type].length;
+                    for (; i < len; i++) {
+                        _message[type][i].call(this, events)
+                    }
+                },
+                // 移除消息 接收两个参数 消息类型和相应的处理动作
+                remove: function (type, fn) {
+                    // 如果消息队列存在
+                    if (_message[type] instanceof Array) {
+                        // 从最后一个消息开始遍历
+                        var i = _message[type].length - 1;
+                        for (; i >= 0; i--) {
+                            // 存在并移除
+                            _message[type][i] === fn && _message[type].splice(i, 1)
+                        }
+                    }
+
+                }
+            }
+        })();
+
+
+        function $(id) {
+            return document.getElementById(id)
+        }
+
+        // 工程师 A
+        (function () {
+            // 追加一条消息
+            function addMsgItem(e) {
+                var text = e.args.text,
+                    ul = $('msg'),
+                    li = document.createElement('li'),
+                    span = document.createElement('span');
+                    span.innerText="删除"
+                li.innerHTML = text;
+                span.onclick = function () {
+                    ul.removeChild(li);;
+                    // 发布删除留言的消息
+                    Observer.fire('removeCommentMessage', {
+                        num: -1
+                    })
+                }
+                li.appendChild(span);
+                ul.appendChild(li);
+            }
+            Observer.regist('addCommentMessage', addMsgItem)
+        })();
+
+        // 工程师 B
+
+        (function () {
+            // 更改需要添加的用户的消息数目
+            function changeMsgNum(e) {
+                var num = e.args.num;
+                $('msg_num').innerText = parseInt($('msg_num').innerText) + num;
+            }
+            Observer.regist('addCommentMessage', changeMsgNum)
+            Observer.regist('removeCommentMessage', changeMsgNum)
+
+        })();
+
+        // 工程师 C
+        (function () {
+            // 用户点击提交按钮
+            $('user_submit').onclick = function (e) {
+                // 获取用户输入框的信息
+                var text = $('user_input');
+                if (text.value === '') {
+                    return;
+                }
+                Observer.fire('addCommentMessage', {
+                    text: text.value,
+                    num: 1
+                });
+                text.value == ""
+            }
+        })()
+    </script>
+</body>
+
+</html>

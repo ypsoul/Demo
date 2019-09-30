@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .box{
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="p">sssss</p>
+    <script>
+        var A = {
+            g: function (id) {
+                return document.getElementById(id)
+            },
+            css: function (id, key, value) {
+                this.g(id).style[key] = value;
+            },
+            attr: function (id, key, value) {
+                this.g(id)[key] = value;
+            },
+            html: function (id, html) {
+                this.g(id).innerHTML = html
+            },
+            on: function (id, type, fn) {
+                this.g(id)['on' + type] = fn
+            }
+        }
+        A.css("p","color",'red');
+        A.attr("p","className",'box');
+        A.on('p','click',function(){
+            A.css('p','width','200px')
+        })
+
+    </script>
+</body>
+
+</html>

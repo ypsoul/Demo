@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <script>
+        // 将观察者放在一个闭包里，当页面加载就立马执行
+
+        var Observer = (function () {
+            // 防止消息队列暴露
+            var _message = {}
+            return {
+                // 注册消息  接收两个参数 消息类型和相应的处理动作
+                regist: function (type, fn) {
+                    // 消息类型不存在就创建一个消息类型
+                    if (typeof _message[type] === "undefined") {
+                        _message[type] = [fn]
+                    } else {
+                        // 将方法动作推入该消息对应的动作序列中
+                        _message[type].push(fn)
+                    }
+                },
+                // 观察者发布一个消息时将所有订阅者的消息一次执行完
+                // 发布消息  接收两个参数 消息类型和执行需要传递的参数
+                fire: function (type, args) {
+                    // 如果没被注册
+                    if (!_message[type]) {
+                        return
+                    }
+                    var events = {
+                            type: type,
+                            args: args || {}
+                        },
+                        i = 0,
+                        len = _message[type].length;
+                    for (; i < len; i++) {
+                        _message[type][i].call(this, events)
+                    }
+                },
+                // 移除消息 接收两个参数 消息类型和相应的处理动作
+                remove: function (type, fn) {
+                    // 如果消息队列存在
+                    if (_message[type] instanceof Array) {
+                        // 从最后一个消息开始遍历
+                        var i = _message[type].length - 1;
+                        for (; i >= 0; i--) {
+                            // 存在并移除
+                            _message[type][i] === fn && _message[type].splice(i, 1)
+                        }
+                    }
+
+                }
+            }
+        })()
+
+        var Student = function (result) {
+            var that = this;
+            that.result = result;
+            that.say = function () {
+                console.log(that.result)
+            }
+            Student.prototype.answer = function (question) {
+                Observer.regist(question, this.say)
+            }
+            Student.prototype.sleep = function (question) {
+                Observer.remove(question, this.say)
+            }
+        }
+
+        var Teacher = function () {}
+
+        Teacher.prototype.ask = function (question) {
+            console.log(question)
+            Observer.fire(question)
+        }
+
+        // 模拟学生
+
+        var student1 = new Student('学生1回答问题'),
+            student2 = new Student('学生2回答问题'),
+            student3 = new Student('学生3回答问题')
+
+        // 这三位学生订阅（监听）了老师提问的两个问题
+
+        student1.answer('什么是设计模式')
+        student1.answer('简述观察者模式')
+        student2.answer('什么是设计模式')
+        student2.answer('简述观察者模式')
+        student3.answer('什么是设计模式')
+        student3.answer('简述观察者模式')
+
+        // 后来第三位学生睡觉了，将第二个问题 简述观察者模式 注销
+        student3.sleep('简述观察者模式')
+
+
+        // 创建一个教师类
+        var teacher = new Teacher()
+
+        teacher.ask('什么是设计模式')
+        teacher.ask('简述观察者模式')
+    </script>
+</body>
+
+</html>
