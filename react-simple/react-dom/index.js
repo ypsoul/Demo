@@ -6,6 +6,21 @@ const ReactDOM = {
 function render(vonde, container) {
   return container.appendChild(_render(vonde))
 }
+// 渲染组件
+function renderCompont(comp){
+  let base;
+  const renderer = comp.render()
+  base=_render(renderer)
+  comp.base = base
+}
+
+
+// 设置组件属性
+function setComponentProps(comp,props){
+  comp.props = props;
+  renderCompont(comp)
+}
+
 
 function createComponent(comp,props){
   let inst;

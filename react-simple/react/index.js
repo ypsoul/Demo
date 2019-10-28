@@ -1,6 +1,4 @@
-const React = {
-  createElement
-}
+import Component from './component'
 
 function createElement(tag,attrs,...childrens){
   // 解构
@@ -11,4 +9,7 @@ function createElement(tag,attrs,...childrens){
   }
 }
 
-export default React
+export default {
+  createElement,
+  Component
+}
