@@ -15,6 +15,10 @@
     <template-refs ref="childref"></template-refs>
 
     <button @click="show">展示</button>
+    <render-test @myClick="myClick" level="2" :list=list>
+      <div slot="name1"> 这是slot-name1</div>
+      <div slot="name2"> 这是slot-name2</div>
+    </render-test>
   </div>
 </template>
 
@@ -36,6 +40,8 @@ import { provide, ref } from "@vue/composition-api";
 // import child from './components/child.vue'
 
 import templateRefs from "./components/template-refs";
+
+import renderTest from "./components/render-test";
 export default {
   name: "app",
   setup() {
@@ -47,7 +53,7 @@ export default {
     const childref = ref(null);
 
     const show = () => {
-      childref.value.setStr()
+      childref.value.setStr();
       console.log(childref);
       console.log("str1的值是:" + childref.value.str1);
     };
@@ -57,6 +63,17 @@ export default {
       show
     };
   },
+  data() {
+    return {
+      list: [
+        { title: "这是一个标题1", status: 0 },
+        { title: "这是一个标题2", status: 1 },
+        { title: "这是一个标题3", status: 2 },
+        { title: "这是一个标题4", status: 1 },
+        { title: "这是一个标题5", status: 2 }
+      ]
+    };
+  },
   components: {
     // setup,
     // ref,
@@ -64,18 +81,27 @@ export default {
     // computed
     // watch2
     // child
-    templateRefs
+    templateRefs,
+    renderTest
+  },
+  methods: {
+    myClick(arg) {
+      console.log(arg);
+    }
   }
 };
 </script>
 
-<style>
+<style scope>
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  margin-top: 60px;
+}
+.foo {
   margin-top: 60px;
 }
 </style>
