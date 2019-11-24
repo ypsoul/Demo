@@ -1,0 +1,158 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('chat:server');
+var http = require('http');
+var IO = require('socket.io')
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+
+
+var server = http.createServer(app);
+
+var users = {};//  sid  socket
+var reflect = {};//  name  sid
+var io = IO.listen(server);
+io.on('connection', function (socket) {
+  console.log(socket.id + "已经连接完成")
+  // console.log(socket.id+"已经连接完成")
+  //每次连接都对应一个  sid
+  //每一个用户都有一个socket  对应一个 sid  对应一个  username
+  // console.log(socket.id);
+  io.sockets.emit('connectSucc', socket.id);
+
+  //
+  //发送私密消息
+  socket.on('private message', function (from, to, msg) {
+      // from -->sid
+      //to -->sid
+      for (const key in reflect) {
+          console.log(key, ":", reflect[key])
+      }
+      // console.log('I received a private message by ', reflect[from],from, ' say to ', reflect[to],to, msg);
+      if (reflect[to] in users) {
+          // console.log('to :' + to);
+          //to 222
+          // users[reflect[to]].emit('to' + to, { mess: msg });
+          users[reflect[to]].emit('to' + to, { person: from, content: msg });
+          console.log('to' + to);
+          console.log(reflect[to]);
+          //
+          // console.log(reflect[to],to+'_to');
+          // xor  <--> 222
+      }
+  });
+
+  //新增用户
+  socket.on('new user', function (data) {
+      reflect[data] = socket.id;
+      // var sidList =
+      //data 是 from 谁发的 添加到这个  users列表  登陆的用户
+
+      if (socket.id in users) {
+          socket.emit("userHasLogin");
+      } else {
+          // var nickname = data;
+          users[socket.id] = socket;
+          console.log(data, socket.id, "已经登录！")
+          // users["aaa"] = socket
+          //每一个登陆的用户有一个自己的socket
+      }
+      // console.info(users);
+  });
+  //断开连接
+  socket.on('disconnect', function () {
+      console.log('user' + socket.id + ' disconnected');
+  });
+});
+
+
+
+
+
+
+
+
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

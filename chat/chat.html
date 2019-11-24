@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- <link rel='stylesheet' href='/stylesheets/style.css' /> -->
+    <link rel="stylesheet" href="./lib/bootstrap.min.css">
+    <link href="https://v3.bootcss.com/assets/css/docs.min.css" rel="stylesheet">
+    <script src="./lib/jquery.min.js"></script>
+    <script src="./lib/bootstrap.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #message_list li {
+            list-item: none;
+        }
+        .box {
+            width: 300px;
+        }
+
+        #message_list {
+            width: 300px;
+            height: 500px;
+            background: #29A3F1;
+            overflow: auto;
+            border: 1px solid #666666;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div class="in_box">
+            姓名:<input id="user_name" type="text"> <button class="login">登录</button>
+        </div>
+         <div class="in_box">
+            发送给：<input type="text" id="to">
+        </div>
+         <div class="in_box">
+            消息内容:<input type="text" id="message"><button type="button" id="send" data-toggle="modal"
+                data-target="#myModal">发送</button>
+        </div>
+    </div>
+
+       
+    <ul id="message_list">
+    </ul>
+     
+</body>
+<script src="./lib/index.js"></script>
+<script>
+
+    $(function () {
+        var socket;
+        var flag = 1;
+        var from, msg, to;
+        $message_list = $('#message_list');
+        $(".login").click(() => {
+            socket = io.connect("http://localhost:8080");
+            from = $('#user_name').val();
+            console.log('from', from);
+            socket.emit('new user', user_name.value);
+
+            socket.on('connectSucc', function (data) {
+                console.log("from", from);
+                //undefined
+                $('#message_list').append('<li>' + data + '已经上线！</li><li>');
+            });
+            $("#send").click(function (e) {
+                from = $('#user_name').val(),
+                    msg = $('#message').val(),
+                    to = $('#to').val(),
+                    socket.emit('private message', from, to, msg);
+            });
+            socket.on('to' + from, function (data) {
+                console.log('to' + from);
+                $('#message_list').append('<li>' + data.person + '说' + data.content + '</li><li>');
+            });
+            //不是以某一个函数为前提的函数要单独放在外面
+            socket.on('userHasLogin', function () {
+                // alert("");
+                console.log(`该用户已经登录`);
+            });
+        })
+    });
+</script>
+
+</html>
