@@ -1,39 +1,15 @@
 const path = require('path')
-const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin')
+const webpackMerge = require('webpack-merge')
+const baseConfig = require('./webpack.base.config')
 
-const dist_dir = 'dist'
+const dist_dir = 'prod_dist'
 
-module.exports = {
+module.exports = webpackMerge(baseConfig,{
   mode:'production',
-  entry:{
-    index:'./src/index.js'
-  },
   output: {
     path:path.resolve(__dirname,dist_dir)
-  },
-  module: {
-    rules:[
-      {
-        test:/\.css$/,
-        use:ExtractTextWebpackPlugin.extract({
-          fallback:'style-loader',
-          use:'css-loader'
-        })
-      },
-      {
-        test:/\.less$/,
-        use:ExtractTextWebpackPlugin.extract({
-          fallback:'style-loader',
-          use:['css-loader','less-loader']
-        })
-      },
-      {
-        test:/\.(jpg|png|svg)$/,
-        loader:['file-loader']
-      },
-    ]
   },
   plugins:[
     new HtmlWebpackPlugin({
@@ -41,6 +17,5 @@ module.exports = {
       title:"diff dev"
     }),
     new ExtractTextWebpackPlugin("style.css"),
-    new CleanWebpackPlugin(),
   ]
-}
+})

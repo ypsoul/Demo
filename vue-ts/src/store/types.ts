@@ -1,7 +1,7 @@
 // types.ts
 export interface RootState {
   version: string;
-  coder: string
+  coder: string;
 }
 export interface User {
   firstName?: string;

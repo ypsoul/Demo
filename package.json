@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/ypsoul/Demo/issues"
   },
-  "homepage": "https://github.com/ypsoul/Demo#readme"
+  "homepage": "https://github.com/ypsoul/Demo#readme",
+  "dependencies": {
+    "vuex-class": "^0.3.2"
+  }
 }

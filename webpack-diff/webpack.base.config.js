@@ -3,15 +3,10 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin')
 
-const dist_dir = 'dist'
 
 module.exports = {
-  mode:'development',
   entry:{
     index:'./src/index.js'
-  },
-  output: {
-    path:path.resolve(__dirname,dist_dir)
   },
   module: {
     rules:[
