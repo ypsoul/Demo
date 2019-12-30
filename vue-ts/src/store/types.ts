@@ -1,4 +1,4 @@
-// types.ts
+// 注意一下，可选或者必选选项 不然检测会报错
 export interface RootState {
   version: string;
   coder: string;
@@ -11,6 +11,7 @@ export interface User {
 }
 
 export interface ProfileState {
+  book?: object;
   user?: User;
-  error: boolean;
+  error?: Boolean
 }
