@@ -1,0 +1,9 @@
+{
+  "name":"个人网站",
+  "short_name":"网站",
+  "display":"standalone",
+  "start_url":"",
+  "icons":[],
+  "background_color":"red",
+  "theme_color":"blue"
+}
