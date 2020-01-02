@@ -1,11 +1,21 @@
 import Vue from "vue";
-// import App from "./App.vue";
-import Test1 from "./views/Test1.vue";
-import store from "./store"
+import App from "./App.vue";
+import store from "./store";
+import router from "./router/index"
+
+
+import { Component } from 'vue-property-decorator';
+
+Component.registerHooks([
+  'beforeRouteEnter',
+  'beforeRouteLeave',
+  'beforeRouteUpdate',
+]);
 
 Vue.config.productionTip = false;
 
-new Vue({
+const vm =new Vue({
   store,
-  render: h => h(Test1)
+  router,
+  render: h => h(App)
 }).$mount("#app");
