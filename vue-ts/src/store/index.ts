@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex, { StoreOptions } from "vuex";
 import { RootState } from "./types";
-import { profile } from "./profile/index";
+// import { profile } from "./profile/index";
 
 Vue.use(Vuex);
 
@@ -11,7 +11,7 @@ const store: StoreOptions<RootState> = {
     coder: "yp"
   },
   modules: {
-    profile
+    // profile
   }
 };
 export default new Vuex.Store<RootState>(store);
