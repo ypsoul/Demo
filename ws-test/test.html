@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,11 +51,6 @@
       text-align: right;
     }
 
-    #ul1 li.tip {
-      color: #f5f5f5;
-      text-align: center;
-    }
-
     #ul2 {
       width: 400px;
       height: 400px;
@@ -73,8 +67,9 @@
 
 <body>
   <div class="wrap">
+    输入用户名：<input type="text" width="400" id="username">
     <input type="button" value="登入" id="login">
-    <div id="nickname">用户未上线</div>
+
     <div class="wrap-content">
       <ul id="ul1">
       </ul>
@@ -87,68 +82,45 @@
   </div>
 
   <script>
+    let socket = io.connect('ws://localhost:8080');
     let oTxt = document.getElementById('text1');
     let oBtn = document.getElementById('btn1');
     let oUl = document.getElementById('ul1');
     let oUl2 = document.getElementById('ul2');
     let ologin = document.getElementById('login');
-
-    let username = "user" + new Date().getTime(); // 模拟用户 ，项目当中可以用 登入昵称
-
+    let oUser = document.getElementById('username');
 
 
-    let socket = io.connect('ws://localhost:8080');
+
     socket.on('connect', function () {
       console.log('已连接');
     })
+
 
     socket.on('disconnect', function () { // 服务端失效，还是会发送消息成功，监听状态，便于提示用户
       console.log('已断开');
     })
 
-    socket.on('connectSucc', (data) => {
-      console.log(`${data}登入中`)
-    });
+
+    socket.on('numbers', (data) => {
+        if (data.length < 1) {
+          return;
+        }
+        var str = "";
+        for (var i = 0; i < data.length; i++) {
+          str += "<li>" + data[i] + "</li>"
+        }
+        console.log(str)
+        oUl2.innerHTML = str;
+    })
 
 
+    ologin.onclick = function () {
 
+      socket.emit('addUser', oUser.value);
+    }
 
-    window.onload = function () {
-      ologin.onclick = function () {
-        socket.emit('addUser', username);
-        socket.on('numbers', (data) => {
-          console.log(data, '222')
-          if (data.length < 1) {
-            return;
-          }
-          console.log(2222)
-          var str = "";
-          for (var i = 0; i < data.length; i++) {
-            str += "<li>" + data[i] + "</li>"
-          }
-          console.log(str)
-          oUl2.innerHTML = str
-        })
-      }
-
-
-      let message = {
-        mytext: "",
-        nickname: "",
-      }; // 发送给服务器的信息
-      oBtn.onclick = function () {
-        message.mytext = oTxt.value,
-          message.nickname = username,
-          socket.emit('msg', message);
-
-        let oLi = document.createElement('li'); // 自己发送的信息单独处理（样式）
-        oLi.innerHTML = oTxt.value;
-        oLi.classList = 'me';
-        oUl.appendChild(oLi)
-        oTxt.value = '';
-      }
-
-      socket.on('msg', obj => {
+    socket.on('msg', obj => {
         let oLi = document.createElement('li'); // 接受服务端信息（服务端已经过滤掉自己的信息了）
         let oDiv = document.createElement('div');
         oDiv.innerHTML = obj.mytext;
@@ -157,14 +129,19 @@
         oLi.appendChild(oDiv)
       })
 
-      socket.on('userHasLogin', function () { // 不要以一个函数来触发它
-        document.getElementById('nickname').innerText = `当前用户： ${username}`;
-        let oLi = document.createElement('li');
-        oLi.innerText = `${username} 用户已经上线`;
-        oLi.classList = 'tip';
-        oUl.appendChild(oLi)
-
-      })
+    let message = {
+      mytext: "",
+      nickname: "",
+    }; // 发送给服务器的信息
+    oBtn.onclick = function () {
+      message.mytext = oTxt.value;
+      message.nickname = oUser.value;
+      socket.emit('msg', message);
+      let oLi = document.createElement('li'); // 自己发送的信息单独处理（样式）
+      oLi.innerHTML = oTxt.value;
+      oLi.classList = 'me';
+      oUl.appendChild(oLi);
+      oTxt.value = '';
     }
   </script>
 </body>
