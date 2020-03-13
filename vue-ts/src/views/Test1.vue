@@ -7,15 +7,12 @@
       <div>角色：{{ item.role }}</div>
     </div>
     <button @click="add(1)">点击</button>
-    <Test2
-      titleFromTest1="我是从test1传给子组件的值"
-      @eventFromTest2="postMessage"
-    />
-    <div>coder:{{ coder }}</div>
-    <div>版本号：{{ version }}</div>
+    <Test2 titleFromTest1="我是从test1传给子组件的值" @eventFromTest2="postMessage" />
+    <div>coder:{{ coder | Test }}</div>
+    <button @click="getMixinTitle"> 测试 </button>
+    <div>版本号：{{ version  }}</div>
     <div>{{ profile.user.firstNam }}</div>
     <div>{{ fullName }}</div>
-
     <ul>
       <li v-for="(item, index) in book" :key="index">
         <img :src="item.bookImg" alt="" />
@@ -24,20 +21,32 @@
         <div>¥{{ item.bookPrice }}</div>
       </li>
     </ul>
+    <router-link to="/about">跳转about</router-link>
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Mixins } from "vue-property-decorator";
 import Test2 from "./Test2.vue";
 import { State, Action, Getter } from "vuex-class";
 import { ProfileState, RootState } from "../store/types";
+import { Route } from "vue-router";
+import { profile } from '../store/profile'
+import { MyMixin } from "../myMixin"
+
 
 const namespace = "profile";
 
 @Component({
   components: { Test2 }
 })
-export default class Test1 extends Vue {
+export default class Test1 extends Mixins(MyMixin) {
+  public beforeCreate(){
+    this.$store.registerModule('profile',profile)
+  }
+  public beforeDestroy() {
+    this.$store.unregisterModule('profile')
+  }
+
   @State version!: RootState;
   @State coder!: RootState;
   @State profile!: ProfileState;
@@ -54,6 +63,20 @@ export default class Test1 extends Vue {
     { name: " 孙淳", role: "封印" }
   ];
 
+  beforeRouteEnter(to: Route, from: Route, next: () => void): void {
+
+    Test1.a()
+    next()
+  }
+  beforeRouteUpdate(to: Route, from: Route, next: () => void): void {
+    console.log(this, "beforeRouteUpdate");
+    next();
+  }
+  beforeRouteLeave(to: Route, from: Route, next: () => void): void {
+    console.log(this, "beforeRouteLeave");
+    next();
+  }
+
   get roleInfo(): string {
     return this.title + "的演员列表";
   }
@@ -62,6 +85,9 @@ export default class Test1 extends Vue {
   }
   postMessage(e: any): void {
     console.log(e);
+  }
+  static a(): void{
+    console.log('22222')
   }
   mounted() {
     this.fetchData();
